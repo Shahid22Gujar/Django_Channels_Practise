@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+
+
+</head>
+
+<body>
+    <h1>Group Name: {{groupname}}</h1>
+    <textarea id="chat-log" cols="30" rows="10"></textarea><br>
+    <input type="text" id="chat-message-input" placeholder="Text Message Here" size="30"><br>
+    <input type="submit" id="chat-message-submit" value="Send"><br>
+    <h2 id="counter"></h2>
+    {{groupname|json_script:"group-name"}}
+    <!-- here id="group-name" this is efficient use of context dict in template -->
+    <script>
+        const groupname = JSON.parse(document.getElementById("group-name").textContent)
+        console.log(groupname)
+            // var ws = new WebSocket('ws://127.0.0.1:8000/ws/ac/')
+            // Using Dynamic URL
+        var ws = new WebSocket(
+                'ws://' + window.location.host + "/ws/sc/" + groupname + "/"
+            )
+            // ws.onopen = function() {
+            //     console.log("WebSocket Connection open..")
+            //     ws.send('Hi,this message from client')
+            // }
+            // ws.onmessage = function(event) {
+            //     console.log('Message received from server', event)
+            // }
+            // ws.onerror = function(event) {
+            //     console.log('Websocket error occured', event)
+            // }
+            // ws.onclose = function(event) {
+            //     console.log('Websocket Connection closed ..', event)
+            // }
+            // Now Creating Event Based
+        ws.addEventListener('open', () => {
+            console.log("WebSocket Connection open..")
+            ws.send('Hi,this message from client')
+        })
+
+        // ws.addEventListener('message', (event) => {
+        //     // console.log('Message received from server', event)
+        //     console.log('Message received from server', event.data)
+        //     document.getElementById("counter").innerText = event.data;
+        // })
+        // ws.addEventListener('message', (event) => {
+        //     // console.log('Message received from server', event)
+        //     console.log('Message received from server', event.data)
+        //     console.log('Type of Event Data;', typeof(event.data))
+        //         // . method only works on obect not string
+        //         // document.getElementById("counter").innerText = event.data.counter
+        //         // string converted to obect
+        //     var data = JSON.parse(event.data)
+        //     console.log('Type of Event data after converting:', typeof(data))
+        //     document.getElementById("counter").innerText = data.counter
+        // })
+        ws.addEventListener('message', (event) => {
+            // console.log('Message received from server', event)
+            console.log('Message received from server', event.data)
+            console.log('Type of Event Data;', typeof(event.data))
+                // . method only works on obect not string
+                // document.getElementById("counter").innerText = event.data.counter
+                // string converted to obect
+            var data = JSON.parse(event.data) //string to obj converting
+            console.log('Type of Event data after converting:', typeof(data)) //parsed data
+                // document.getElementById("chat-log").innerText = data.msg=>It shows only current message
+            document.querySelector("#chat-log").value += (data.msg + '\n') //it shows all messages
+        })
+        ws.addEventListener('error', (event) => {
+            console.log('Websocket error occured', event)
+        })
+        ws.addEventListener('close', (event) => {
+            console.log('Websocket Connection closed ..', event)
+        })
+        document.getElementById('chat-message-submit').onclick =
+            function(event) {
+                const messageInputDOM = document.getElementById('chat-message-input')
+                const message = messageInputDOM.value
+                console.log(message)
+                ws.send(JSON.stringify({
+                    'msg': message
+                }))
+                messageInputDOM.value = ''
+            }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+</head>
+
+<body>
+    <h3 style="align-items: center;">Counter</h3>
+    <h4 id="counter"></h4>
+    <script>
+        var ws = new WebSocket('ws://127.0.0.1:8000/ws/wsc/')
+        ws.onopen = function() {
+            console.log('Websocket connection open..')
+            ws.send("Hi,message send from client")
+        }
+        ws.onmessage = function() {
+            console.log("Message received from server.", event)
+            console.log(event.data)
+            document.getElementById("counter").innerText = event.data
+        }
+    </script>
+</body>
+
+</html>
